@@ -64,10 +64,13 @@ def get_top_recommendations(query: str, k: int = 10):
     df["score"] = sims
     df_sorted = df.sort_values("score", ascending=False)
 
-    # 🔥 Return up to k matches (even if fewer exist)
-    df_top = df_sorted.head(k)
+    # 🎯 Always get top 10 internally
+    internal_top_k = df_sorted.head(10)
 
-    return df_top[[  # Return only required fields
+    # ✂️ Slice based on user request (k) – safe even if fewer than k exist
+    final_results = internal_top_k.head(k)
+
+    return final_results[[  # Return only required fields
         "Assessment Name",
         "Source",
         "URL",
