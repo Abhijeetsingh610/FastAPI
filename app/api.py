@@ -1,17 +1,10 @@
-# app/api.py
-
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from engine.recommender import get_top_recommendations
 
-app = FastAPI(
-    title="SHL Assessment Recommender API",
-    description="API to return top SHL assessments for a job description or query using Gemini embeddings.",
-    version="1.0.0"
-)
+app = FastAPI()
 
-# CORS setup (helpful if frontend or external service calls it)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -22,11 +15,11 @@ app.add_middleware(
 
 class QueryRequest(BaseModel):
     query: str
-    top_k: int = 10  # optional, default to 10
+    top_k: int = 10
 
 @app.get("/")
 def read_root():
-    return {"message": "SHL Assessment Recommender API is running 🚀"}
+    return {"message": "SHL Assessment Recommender API (Gemini-powered) is running 🚀"}
 
 @app.post("/recommend")
 def recommend_assessments(request: QueryRequest):
