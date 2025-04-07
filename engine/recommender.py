@@ -55,17 +55,19 @@ def get_top_recommendations(query: str, k: int = 10):
     df = load_combined_data()
     query_vec = get_query_embedding(query)
 
+    if np.all(query_vec == 0):
+        return pd.DataFrame()
+
     embeddings = np.stack(df["embedding"].values)
     sims = cosine_similarity([query_vec], embeddings)[0]
 
-    print(f"🔍 Total assessments loaded: {len(df)}")
-    print(f"🎯 Query: {query}")
-    print(f"📊 Top similarity scores: {sorted(sims, reverse=True)[:10]}")
-    
     df["score"] = sims
-    df_sorted = df.sort_values("score", ascending=False).head(k)
+    df_sorted = df.sort_values("score", ascending=False)
 
-    return df_sorted[[  # Only return relevant columns
+    # 🔥 Return up to k matches (even if fewer exist)
+    df_top = df_sorted.head(k)
+
+    return df_top[[  # Return only required fields
         "Assessment Name",
         "Source",
         "URL",
@@ -76,4 +78,3 @@ def get_top_recommendations(query: str, k: int = 10):
         "Adaptive/IRT Support",
         "score"
     ]].reset_index(drop=True)
-
