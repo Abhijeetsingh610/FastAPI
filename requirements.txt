@@ -3,7 +3,9 @@ pandas
 numpy
 scikit-learn
 requests
-sentence-transformers
 tabulate
 uvicorn
 fastapi
+sentence-transformers==2.2.2
+transformers==4.34.1
+torch>=1.13.1
