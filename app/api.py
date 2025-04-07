@@ -18,8 +18,9 @@ class QueryRequest(BaseModel):
     top_k: int = 10
 
 @app.get("/")
+@app.head("/")
 def read_root():
-    return {"message": "SHL Assessment Recommender API (Gemini-powered) is running 🚀"}
+    return {"message": "SHL Assessment Recommender API is running 🚀"}
 
 @app.post("/recommend")
 def recommend_assessments(request: QueryRequest):
