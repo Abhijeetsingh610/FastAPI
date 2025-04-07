@@ -4,7 +4,8 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from sentence_transformers import SentenceTransformer
 
-model = SentenceTransformer("all-MiniLM-L6-v2")
+model = SentenceTransformer("models/all-MiniLM-L6-v2")
+
 
 def load_embedding_file(path, source_label):
     with open(path, "r") as f:
