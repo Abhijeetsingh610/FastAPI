@@ -3,7 +3,8 @@ pandas
 numpy
 scikit-learn
 requests
-sentence-transformers
 tabulate
 uvicorn
 fastapi
+google-generativeai
+
