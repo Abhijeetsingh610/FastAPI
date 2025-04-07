@@ -1,12 +1,9 @@
-streamlit
-google-generativeai
 pandas
 numpy
 scikit-learn
 beautifulsoup4
 requests
-python-dotenv
-google-generativeai
 sentence-transformers
 tabulate
 uvicorn
+fastapi
