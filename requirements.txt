@@ -5,5 +5,5 @@ scikit-learn
 requests
 sentence-transformers
 tabulate
-fastapi
 uvicorn
+fastapi
