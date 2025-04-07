@@ -26,6 +26,9 @@ def read_root():
 def recommend_assessments(request: QueryRequest):
     try:
         results = get_top_recommendations(request.query, request.top_k)
+        if results.empty:
+            return []
         return results.to_dict(orient="records")
     except Exception as e:
         return {"error": str(e)}
+
