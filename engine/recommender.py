@@ -5,11 +5,7 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import google.generativeai as genai
 
-
 genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
-
-
-embed_model = genai.embed_content
 
 def load_embedding_file(path, source_label):
     with open(path, "r") as f:
@@ -61,14 +57,20 @@ def get_top_recommendations(query: str, k: int = 10):
     embeddings = np.stack(df["embedding"].values)
     sims = cosine_similarity([query_vec], embeddings)[0]
 
+    # ✅ Fix for invalid float values (NaN, Inf)
+    sims = np.nan_to_num(sims, nan=0.0, posinf=1.0, neginf=0.0)
+
     df["score"] = sims
     df_sorted = df.sort_values("score", ascending=False)
 
-    # 🎯 Always get top 10 internally
+    # 🎯 Always fetch 10 max (or less if not enough results)
     internal_top_k = df_sorted.head(10)
 
-    # ✂️ Slice based on user request (k) – safe even if fewer than k exist
+    # ✂️ Slice according to user request (k)
     final_results = internal_top_k.head(k)
+
+    # ✅ Ensure score is serializable
+    final_results["score"] = final_results["score"].astype(float)
 
     return final_results[[  # Return only required fields
         "Assessment Name",
