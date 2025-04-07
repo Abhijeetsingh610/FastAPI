@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: shl-assessment-api
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: ./start.sh
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "true"
+    plan: free
