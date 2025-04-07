@@ -1,11 +1,15 @@
 import json
+import os
 import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
-from sentence_transformers import SentenceTransformer
+import google.generativeai as genai
 
-model = SentenceTransformer("models/all-MiniLM-L6-v2")
 
+genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+
+
+embed_model = genai.embed_content
 
 def load_embedding_file(path, source_label):
     with open(path, "r") as f:
@@ -14,14 +18,12 @@ def load_embedding_file(path, source_label):
     df["embedding"] = df["embedding"].apply(np.array)
     df["Source"] = source_label
 
-    # ✅ Rename columns to match UI display expectations
     df.rename(columns={
         "Assessment Length": "Duration",
         "Remote Testing": "Remote Testing Support",
         "Adaptive/IRT": "Adaptive/IRT Support"
     }, inplace=True)
 
-    # ✅ Ensure all required columns exist
     required_cols = [
         "Assessment Name", "Duration", "Test Type", "Job Level",
         "Remote Testing Support", "Adaptive/IRT Support", "URL"
@@ -32,15 +34,22 @@ def load_embedding_file(path, source_label):
 
     return df
 
-
-
 def load_combined_data():
     prepackaged = load_embedding_file("data/prepackaged_embeddings.json", "Prepackaged")
     individual = load_embedding_file("data/individual_embeddings.json", "Individual")
     return pd.concat([prepackaged, individual], ignore_index=True)
 
 def get_query_embedding(query: str):
-    return model.encode(query)
+    try:
+        res = genai.embed_content(
+            model="models/embedding-001",
+            content=query,
+            task_type="retrieval_document"
+        )
+        return np.array(res["embedding"])
+    except Exception as e:
+        print("❌ Gemini embedding error:", e)
+        return np.zeros(768)  # fallback
 
 def get_top_recommendations(query: str, k: int = 10):
     df = load_combined_data()
@@ -52,7 +61,7 @@ def get_top_recommendations(query: str, k: int = 10):
     df["score"] = sims
     df_sorted = df.sort_values("score", ascending=False).head(k)
 
-    columns = [
+    return df_sorted[[
         "Assessment Name",
         "Source",
         "URL",
@@ -62,6 +71,4 @@ def get_top_recommendations(query: str, k: int = 10):
         "Remote Testing Support",
         "Adaptive/IRT Support",
         "score"
-    ]
-
-    return df_sorted[columns].reset_index(drop=True)
+    ]].reset_index(drop=True)
